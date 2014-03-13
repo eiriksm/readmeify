@@ -1,6 +1,6 @@
 {
   "name": "readmeify",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Generates standard stuff on top of README.md",
   "main": "index.js",
   "scripts": {
@@ -9,6 +9,9 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/eiriksm/readmeify.git"
+  },
+  "bin": {
+    "readmeify": "./bin/readmeify"
   },
   "keywords": [
     "readme",
