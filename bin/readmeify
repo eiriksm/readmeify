@@ -1,15 +1,46 @@
 #!/usr/bin/env node
 
-// Try to find package of current directory.
-var pack, github, readme;
+var fs = require('fs');
 var dir = process.cwd();
-try {
-  pack = require(dir + '/package.json');
-  console.log(pack.repository.url);
-}
-catch (err) {
-  console.error('No package.json found in ' + dir);
-  process.exit(1);
-}
+var beforeBool = require('./lib/beforeBool');
 
-console.log(pack.version);
+var schema = {
+  properties: {
+    readme: {
+      type: 'string',
+      default: 'y',
+      before: beforeBool,
+      description: 'No README.md found, would you like to create one?',
+      conform: function(val) {
+        if (val !== 'y') {
+          console.log('Nothing to do here. Exiting.');
+          process.exit(1);
+        }
+        return true;
+      }
+    },
+    david: {
+      type: 'string',
+      default: 'y',
+      before: beforeBool,
+      description: 'Do you want a david.dm badge?'
+    },
+    travis: {
+      type: 'string',
+      default: 'y',
+      before: beforeBool,
+      description: 'Do you want a travis-ci badge?'
+    }
+  }
+};
+
+var readmefile = require('./lib/findReadme')(dir);
+if (readmefile) {
+  delete schema.properties.readme;
+}
+var pack = require('./lib/findPackage')(dir);
+var settings = {
+  dir: dir,
+  package: pack
+};
+require('./lib/startPrompt')(schema, settings);
