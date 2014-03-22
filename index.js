@@ -29,6 +29,29 @@ module.exports = function(input, settings) {
     fs.writeFileSync(settings.dir + '/README.md', readmeArray.join('\n'));
     return require('./bin/lib/findReadme')(settings.dir);
   };
+  var createTravisYml = function(settings) {
+
+    // Create a README based on package.json
+    var ymlArray = [];
+
+    // First add language.
+    ymlArray.push('language: node_js');
+
+    // Add testable node versions
+    ymlArray.push('node_js:');
+    ymlArray.push('  - "0.11"');
+    ymlArray.push('  - "0.10"');
+
+    // Add a blank line for readability
+    ymlArray.push('');
+
+    // Add test script
+    ymlArray.push('script:');
+    ymlArray.push('  - npm test');
+
+    // Write to disc.
+    fs.writeFileSync(settings.dir + '/.travis.yml', ymlArray.join('\n'));
+  };
   // Find out the short form of github page.
   if (!settings || !settings.package || !settings.package.repository || !settings.package.repository.url) {
     exitNoGithub();
@@ -54,14 +77,17 @@ module.exports = function(input, settings) {
   // Usually I just put stuff at line 3. Let's start with that.
   var written = false;
   if (input.david && input.david === 'y') {
-    var davidLine = util.format('[![Dependency Status](https://david-dm.org/%s.png)](https://david-dm.org/%s)', ghurl, ghurl);
+    var davidLine = util.format('[![Dependency Status](https://david-dm.org/%s.svg?theme=shields.io)](https://david-dm.org/%s)', ghurl, ghurl);
     readmeArray.splice(2, 0, davidLine);
     written = true;
   }
   if (input.travis && input.travis === 'y') {
-    var travisLine = util.format('[![Build Status](https://secure.travis-ci.org/%s.png)](http://travis-ci.org/%s)', ghurl, ghurl);
+    var travisLine = util.format('[![Build Status](https://img.shields.io/travis/%s.svg)](http://travis-ci.org/%s)', ghurl, ghurl);
     readmeArray.splice(2, 0, travisLine);
     written = true;
+  }
+  if (input.travisyml && input.travisyml === 'y') {
+    createTravisYml(settings);
   }
 
   // Ok, let's present the result to the user, and ask for permission to write
@@ -78,10 +104,12 @@ module.exports = function(input, settings) {
         description: endResult + '\n\nDoes this look OK?'
       }
     }
+  };
+  if (written) {
+    prompt.get(schema, function (err, result) {
+      if (result.ok === 'y') {
+        fs.writeFileSync(settings.dir + '/README.md', endResult);
+      }
+    });
   }
-  prompt.get(schema, function (err, result) {
-    if (result.ok === 'y') {
-      fs.writeFileSync(settings.dir + '/README.md', endResult);
-    }
-  });
 };

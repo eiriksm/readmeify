@@ -30,6 +30,12 @@ var schema = {
       default: 'y',
       before: beforeBool,
       description: 'Do you want a travis-ci badge?'
+    },
+    travisyml: {
+      type: 'string',
+      default: 'y',
+      before: beforeBool,
+      description: 'Do you want a .travis.yml file?'
     }
   }
 };
