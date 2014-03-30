@@ -6,7 +6,7 @@ module.exports = function(schema, settings) {
   prompt.start();
   prompt.get(schema, function (err, result) {
     if (err) {
-      if (err.message == 'canceled') {
+      if (err.message === 'canceled') {
         console.log('Readmeify cancelled!\n'.yellow);
         process.exit(0);
       }

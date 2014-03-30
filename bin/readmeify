@@ -3,6 +3,8 @@
 var fs = require('fs');
 var dir = process.cwd();
 var beforeBool = require('./lib/beforeBool');
+var isVersionArg = require('./lib/version').arg;
+var displayVersion = require('./lib/version').display;
 
 var schema = {
   properties: {
@@ -55,4 +57,8 @@ var settings = {
   dir: dir,
   package: pack
 };
+if (process.argv[2] && isVersionArg(process.argv[2])) {
+  displayVersion();
+  process.exit(0);
+}
 require('./lib/startPrompt')(schema, settings);
