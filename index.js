@@ -8,6 +8,39 @@ module.exports = function(input, settings) {
     console.error('I have no idea where this code lives (no github URL found).');
     process.exit(1);
   };
+  var written = false;
+
+  var hasTrueInput = function(input, type) {
+    if (input[type] && input[type] === 'y') {
+      return true;
+    }
+    return false;
+  };
+
+  var checkDavid = function(input, ghurl) {
+    if (hasTrueInput(input, 'david')) {
+      var davidLine = util.format('[![Dependency Status](https://david-dm.org/%s.svg?theme=shields.io)](https://david-dm.org/%s)', ghurl, ghurl);
+      readmeArray.splice(2, 0, davidLine);
+      written = true;
+    }
+  };
+
+  var checkTravis = function(input, ghurl) {
+    if (hasTrueInput(input, 'travis')) {
+      var travisLine = util.format('[![Build Status](https://travis-ci.org/%s.svg)](https://travis-ci.org/%s)', ghurl, ghurl);
+      readmeArray.splice(2, 0, travisLine);
+      written = true;
+    }
+  };
+
+  var checkCodeClimate = function(input, ghurl) {
+    if (hasTrueInput(input, 'codeclimate')) {
+      var ccline = util.format('[![Code Climate](http://img.shields.io/codeclimate/github/%s.svg)](https://codeclimate.com/github/%s)', ghurl, ghurl);
+      readmeArray.splice(2, 0, ccline);
+      written = true;
+    }
+  };
+
   var createReadme = function(settings) {
 
     // Create a README based on package.json
@@ -75,17 +108,9 @@ module.exports = function(input, settings) {
   var readmeArray = readmefile.split('\n');
 
   // Usually I just put stuff at line 3. Let's start with that.
-  var written = false;
-  if (input.david && input.david === 'y') {
-    var davidLine = util.format('[![Dependency Status](https://david-dm.org/%s.svg?theme=shields.io)](https://david-dm.org/%s)', ghurl, ghurl);
-    readmeArray.splice(2, 0, davidLine);
-    written = true;
-  }
-  if (input.travis && input.travis === 'y') {
-    var travisLine = util.format('[![Build Status](https://img.shields.io/travis/%s.svg)](http://travis-ci.org/%s)', ghurl, ghurl);
-    readmeArray.splice(2, 0, travisLine);
-    written = true;
-  }
+  checkDavid(input, ghurl);
+  checkTravis(input, ghurl);
+  checkCodeClimate(input, ghurl);
   if (input.travisyml && input.travisyml === 'y') {
     createTravisYml(settings);
   }
@@ -95,18 +120,28 @@ module.exports = function(input, settings) {
   var endResult = readmeArray.join('\n');
   prompt.message = "READMEIFY!".cyan;
   prompt.start();
+  console.log('--- PREVIEW ---'.yellow);
+  console.log(endResult.grey);
   var schema = {
     properties: {
       ok: {
         type: 'string',
         default: 'y',
         before: require('./bin/lib/beforeBool'),
-        description: endResult + '\n\nDoes this look OK?'
+        description: "Does this look OK?"
       }
     }
   };
   if (written) {
     prompt.get(schema, function (err, result) {
+      if (err) {
+        if (err.message === 'canceled') {
+          console.log('Readmeify cancelled!\n'.yellow);
+          process.exit(0);
+        }
+        console.error(err);
+        process.exit(1);
+      }
       if (result.ok === 'y') {
         fs.writeFileSync(settings.dir + '/README.md', endResult);
       }

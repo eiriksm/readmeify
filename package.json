@@ -1,6 +1,6 @@
 {
   "name": "readmeify",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Generates standard stuff on top of README.md",
   "main": "index.js",
   "scripts": {
