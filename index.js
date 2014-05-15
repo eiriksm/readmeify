@@ -120,19 +120,19 @@ module.exports = function(input, settings) {
   var endResult = readmeArray.join('\n');
   prompt.message = "READMEIFY!".cyan;
   prompt.start();
-  console.log('--- PREVIEW ---'.yellow);
-  console.log(endResult.grey);
   var schema = {
     properties: {
       ok: {
         type: 'string',
         default: 'y',
         before: require('./bin/lib/beforeBool'),
-        description: "Does this look OK?"
+        description: 'Does this look OK?'
       }
     }
   };
   if (written) {
+    console.log('--- PREVIEW ---'.yellow);
+    console.log(endResult.grey);
     prompt.get(schema, function (err, result) {
       if (err) {
         if (err.message === 'canceled') {
