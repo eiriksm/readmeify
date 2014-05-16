@@ -1,7 +1,8 @@
 Readmeify
 ==
-[![Code Climate](http://img.shields.io/codeclimate/github/eiriksm/readmeify.svg)](https://codeclimate.com/github/eiriksm/readmeify)
 [![Build Status](https://travis-ci.org/eiriksm/readmeify.svg)](https://travis-ci.org/eiriksm/readmeify)
+[![Coverage Status](http://img.shields.io/coveralls/eiriksm/readmeify.svg)](https://coveralls.io/r/eiriksm/readmeify?branch=master)
+[![Code Climate](http://img.shields.io/codeclimate/github/eiriksm/readmeify.svg)](https://codeclimate.com/github/eiriksm/readmeify)
 [![Dependency Status](https://david-dm.org/eiriksm/readmeify.svg?theme=shields.io)](https://david-dm.org/eiriksm/readmeify)
 
 Generates standard stuff on top of README.md. In fact, this file (the top of it)

@@ -40,6 +40,13 @@ module.exports = function(input, settings) {
       written = true;
     }
   };
+  var checkCoveralls = function(input, ghurl) {
+    if (hasTrueInput(input, 'coveralls')) {
+      var caline = util.format('[![Coverage Status](http://img.shields.io/coveralls/%s.svg)](https://coveralls.io/r/%s?branch=master)', ghurl, ghurl);
+      readmeArray.splice(2, 0, caline);
+      written = true;
+    }
+  };
 
   var createReadme = function(settings) {
 
@@ -107,10 +114,10 @@ module.exports = function(input, settings) {
   // Split readme into pieces.
   var readmeArray = readmefile.split('\n');
 
-  // Usually I just put stuff at line 3. Let's start with that.
   checkDavid(input, ghurl);
-  checkTravis(input, ghurl);
   checkCodeClimate(input, ghurl);
+  checkCoveralls(input, ghurl);
+  checkTravis(input, ghurl);
   if (input.travisyml && input.travisyml === 'y') {
     createTravisYml(settings);
   }

@@ -37,6 +37,12 @@ var schema = {
       before: beforeBool,
       description: 'Do you want a Code climate badge?'
     },
+    coveralls: {
+      type: 'string',
+      default: 'y',
+      before: beforeBool,
+      description: 'Do you want a coveralls badge?'
+    },
     travisyml: {
       type: 'string',
       default: 'y',
