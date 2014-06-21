@@ -27,7 +27,7 @@ module.exports = function(input, settings) {
 
   var checkTravis = function(input, ghurl) {
     if (hasTrueInput(input, 'travis')) {
-      var travisLine = util.format('[![Build Status](https://travis-ci.org/%s.svg)](https://travis-ci.org/%s)', ghurl, ghurl);
+      var travisLine = util.format('[![Build Status](https://travis-ci.org/%s.svg?branch=master)](https://travis-ci.org/%s)', ghurl, ghurl);
       readmeArray.splice(2, 0, travisLine);
       written = true;
     }
