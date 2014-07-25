@@ -82,13 +82,6 @@ module.exports = function(input, settings) {
     ymlArray.push('  - "0.11"');
     ymlArray.push('  - "0.10"');
 
-    // Add a blank line for readability
-    ymlArray.push('');
-
-    // Add test script
-    ymlArray.push('script:');
-    ymlArray.push('  - npm test');
-
     // Write to disc.
     fs.writeFileSync(settings.dir + '/.travis.yml', ymlArray.join('\n'));
   };
