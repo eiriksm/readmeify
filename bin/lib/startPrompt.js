@@ -7,7 +7,7 @@ module.exports = function(schema, settings) {
   prompt.get(schema, function (err, result) {
     if (err) {
       if (err.message === 'canceled') {
-        console.log('Readmeify cancelled!\n'.yellow);
+        console.log('\nReadmeify cancelled!\n'.yellow);
         process.exit(0);
       }
       process.exit(1);
