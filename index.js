@@ -95,7 +95,7 @@ module.exports = function(input, settings) {
     exitNoGithub();
   }
   else {
-    ghurl = ghurl.replace(ghreg, '').replace('.git', '');
+    ghurl = ghurl.replace(ghreg, '').replace(/.git$/, '');
   }
   if (input.readme && input.readme === 'y') {
     readmefile = createReadme(settings);
