@@ -2,16 +2,24 @@ var util = require('util');
 var fs = require('fs');
 var prompt = require('prompt');
 
-module.exports = function(input, settings) {
+module.exports = function(input, settings, cb) {
+  var callback = function(code) {
+    /*istanbul ignore else*/
+    if (cb) {
+      return cb(null, code);
+    }
+    /*istanbul ignore next*/
+    process.exit(code);
+  }
   var readmefile;
   var exitNoGithub = function() {
     console.error('I have no idea where this code lives (no github URL found).');
-    process.exit(1);
+    callback(1);
   };
   var written = false;
 
   var hasTrueInput = function(input, type) {
-    if (input[type] && input[type] === 'y') {
+    if (input && input[type] && input[type] === 'y') {
       return true;
     }
     return false;
@@ -87,17 +95,17 @@ module.exports = function(input, settings) {
   };
   // Find out the short form of github page.
   if (!settings || !settings.package || !settings.package.repository || !settings.package.repository.url) {
-    exitNoGithub();
+    return exitNoGithub();
   }
   var ghurl = settings.package.repository.url;
   var ghreg = /[a-z]*:\/\/github.com\//;
   if (!ghurl.match(ghreg)) {
-    exitNoGithub();
+    return exitNoGithub();
   }
   else {
     ghurl = ghurl.replace(ghreg, '').replace(/.git$/, '');
   }
-  if (input.readme && input.readme === 'y') {
+  if (input && input.readme && input.readme === 'y') {
     readmefile = createReadme(settings);
   }
   else {
@@ -105,13 +113,16 @@ module.exports = function(input, settings) {
   }
 
   // Split readme into pieces.
-  var readmeArray = readmefile.split('\n');
+  var readmeArray = [];
+  if (readmefile) {
+    readmeArray = readmefile.split('\n');
+  }
 
   checkDavid(input, ghurl);
   checkCodeClimate(input, ghurl);
   checkCoveralls(input, ghurl);
   checkTravis(input, ghurl);
-  if (input.travisyml && input.travisyml === 'y') {
+  if (input && input.travisyml && input.travisyml === 'y') {
     createTravisYml(settings);
   }
 
@@ -119,7 +130,9 @@ module.exports = function(input, settings) {
   // it to a file.
   var endResult = readmeArray.join('\n');
   prompt.message = "READMEIFY!".cyan;
-  prompt.start();
+  var stdin = settings.stdin || process.stdin;
+  prompt.started = false;
+  prompt.start({stdin: stdin});
   var schema = {
     properties: {
       ok: {
@@ -135,16 +148,20 @@ module.exports = function(input, settings) {
     console.log(endResult.grey);
     prompt.get(schema, function (err, result) {
       if (err) {
+        /*istanbul ignore else*/
         if (err.message === 'canceled') {
           console.log('Readmeify cancelled!\n'.yellow);
-          process.exit(0);
+          return callback(0);
         }
+        /*istanbul ignore next*/
         console.error(err);
-        process.exit(1);
+        /*istanbul ignore next*/
+        return callback(1);
       }
       if (result.ok === 'y') {
         fs.writeFileSync(settings.dir + '/README.md', endResult);
       }
+      callback(0);
     });
   }
 };

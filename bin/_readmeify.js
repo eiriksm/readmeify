@@ -69,4 +69,9 @@ if (process.argv[2] && isVersionArg(process.argv[2])) {
   displayVersion();
   process.exit(0);
 }
-require('./lib/startPrompt')(schema, settings);
+require('./lib/startPrompt')(schema, settings, function(err, code) {
+  if (err) {
+    throw(err);
+  }
+  process.exit(code);
+});

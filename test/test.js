@@ -1,4 +1,6 @@
 var should = require('should');
+var stream = require("mock-utf8-stream");
+var stdin = new stream.MockReadableStream();
 
 describe('Unit tests', function() {
   it('Should expose a beforeBool in lib', function() {
@@ -36,5 +38,69 @@ describe('Unit tests', function() {
     v.arg().should.eql(false);
     // Just run the display function to see it does not error out.
     v.display();
+  });
+});
+
+describe('Bootstrap everything', function() {
+  var s = {
+    package: {
+      repository: {
+        url: 'https://github.com/eiriksm/readmeify'
+      }
+    }
+  };
+  var input = {};
+  var r = require('..');
+  it('Should go all good', function() {
+    r(null, null, function(){});
+    r(null, s);
+  });
+  it('Should not recognize non-github repo', function() {
+    s.package.repository.url = 'http://bugus.domain';
+    r(null, s, function(e, c) {
+      c.should.equal(1);
+    });
+  });
+  it('Should do something more if we want to create README', function() {
+    s.package.repository.url = 'https://github.com/eiriksm/readmeify';
+    s.dir = '..';
+    input.readme = 'y';
+    r(input, s, function(c) {
+    });
+  });
+  it('Should do even more if we want to create .travis.yml file', function() {
+    input.travisyml = 'y';
+    r(input, s, function(c) {
+    });
+  });
+  it('Should add all badges if we flag them to be there', function(done) {
+    input.david = 'y';
+    input.coveralls = 'y';
+    input.codeclimate = 'y';
+    input.travis = 'y';
+    r2 = require('..');
+    s.stdin = stdin;
+    setTimeout(function() {
+      s.stdin.write('y');
+      s.stdin.write("\n");
+    });
+    r2(input, s, function() {
+      done();
+    });
+  });
+  it('Should pass on a couple of coverage based cases', function(done) {
+    r3 = require('..');
+    setTimeout(function() {
+      s.stdin.write('n');
+      s.stdin.write("\n");
+    });
+    r3(input, s, function() {
+      setTimeout(function() {
+        s.stdin.write("\x03");
+      });
+      r3(input, s, function() {
+        done();
+      });
+    });
   });
 });
