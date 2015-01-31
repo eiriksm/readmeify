@@ -13,3 +13,4 @@ deploy:
   on:
     tags: true
     repo: eiriksm/readmeify
+sudo: false
