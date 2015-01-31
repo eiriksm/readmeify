@@ -10,7 +10,7 @@ module.exports = function(input, settings, cb) {
     }
     /*istanbul ignore next*/
     process.exit(code);
-  }
+  };
   var readmefile;
   var exitNoGithub = function() {
     console.error('I have no idea where this code lives (no github URL found).');
