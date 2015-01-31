@@ -27,7 +27,7 @@ module.exports = function(input, settings, cb) {
 
   var checkDavid = function(input, ghurl) {
     if (hasTrueInput(input, 'david')) {
-      var davidLine = util.format('[![Dependency Status](https://david-dm.org/%s.svg?theme=shields.io)](https://david-dm.org/%s)', ghurl, ghurl);
+      var davidLine = util.format('[![Dependency Status](https://david-dm.org/%s.svg)](https://david-dm.org/%s)', ghurl, ghurl);
       readmeArray.splice(2, 0, davidLine);
       written = true;
     }
@@ -43,14 +43,14 @@ module.exports = function(input, settings, cb) {
 
   var checkCodeClimate = function(input, ghurl) {
     if (hasTrueInput(input, 'codeclimate')) {
-      var ccline = util.format('[![Code Climate](http://img.shields.io/codeclimate/github/%s.svg)](https://codeclimate.com/github/%s)', ghurl, ghurl);
+      var ccline = util.format('[![Code Climate](https://codeclimate.com/github/%s/badges/gpa.svg)](https://codeclimate.com/github/%s)', ghurl, ghurl);
       readmeArray.splice(2, 0, ccline);
       written = true;
     }
   };
   var checkCoveralls = function(input, ghurl) {
     if (hasTrueInput(input, 'coveralls')) {
-      var caline = util.format('[![Coverage Status](http://img.shields.io/coveralls/%s.svg)](https://coveralls.io/r/%s?branch=master)', ghurl, ghurl);
+      var caline = util.format('[![Coverage Status](https://coveralls.io/repos/%s/badge.svg?branch=master)](https://coveralls.io/r/%s?branch=master)', ghurl, ghurl);
       readmeArray.splice(2, 0, caline);
       written = true;
     }
@@ -89,6 +89,7 @@ module.exports = function(input, settings, cb) {
     ymlArray.push('node_js:');
     ymlArray.push('  - "0.11"');
     ymlArray.push('  - "0.10"');
+    ymlArray.push('sudo: false');
 
     // Write to disc.
     fs.writeFileSync(settings.dir + '/.travis.yml', ymlArray.join('\n'));
