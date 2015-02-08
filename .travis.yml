@@ -2,6 +2,8 @@ language: node_js
 node_js:
 - '0.11'
 - '0.10'
+- '0.12'
+- "io.js"
 script:
 - make test-cov
 - cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js > /dev/null 2>&1
