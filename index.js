@@ -87,8 +87,9 @@ module.exports = function(input, settings, cb) {
 
     // Add testable node versions
     ymlArray.push('node_js:');
-    ymlArray.push('  - "0.11"');
+    ymlArray.push('  - "0.12"');
     ymlArray.push('  - "0.10"');
+    ymlArray.push('  - "io.js"');
     ymlArray.push('sudo: false');
 
     // Write to disc.
