@@ -18,7 +18,7 @@ module.exports = function(input, settings, cb) {
   var callback = function(code) {
     /*istanbul ignore else*/
     if (cb) {
-      return cb(null, code);
+      return cb(null, code, readmeArray);
     }
     /*istanbul ignore next*/
     process.exit(code); // eslint-disable-line no-process-exit
