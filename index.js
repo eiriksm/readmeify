@@ -1,68 +1,72 @@
+'use strict';
 var util = require('util');
 var fs = require('fs');
 var prompt = require('prompt');
+var parse = require('parse-github-repo-url');
 
 module.exports = function(input, settings, cb) {
+  var ghurl;
+  if (settings && settings.package) {
+    var parsedRepo = parse(settings.package.repository.url);
+    ghurl = util.format('%s/%s', parsedRepo[0], parsedRepo[1]);
+  }
+  else {
+    cb(new Error('NO GH URL'));
+    return;
+  }
+  var readmeArray = [];
   var callback = function(code) {
     /*istanbul ignore else*/
     if (cb) {
       return cb(null, code);
     }
     /*istanbul ignore next*/
-    process.exit(code);
+    process.exit(code); // eslint-disable-line no-process-exit
   };
   var readmefile;
-  var exitNoGithub = function() {
-    console.error('I have no idea where this code lives (no github URL found).');
-    callback(1);
-  };
   var written = false;
 
-  var hasTrueInput = function(input, type) {
-    if (input && input[type] && input[type] === 'y') {
+  var hasTrueInput = function(userInput, type) {
+    if (userInput && userInput[type] && userInput[type] === 'y') {
       return true;
     }
     return false;
   };
 
-  var checkDavid = function(input, ghurl) {
-    if (hasTrueInput(input, 'david')) {
-      var davidLine = util.format('[![Dependency Status](https://david-dm.org/%s.svg)](https://david-dm.org/%s)', ghurl, ghurl);
+  var checkDavid = function(userInput, url) {
+    if (hasTrueInput(userInput, 'david')) {
+      var davidLine = util.format('[![Dependency Status](https://david-dm.org/%s.svg)](https://david-dm.org/%s)', url, url);
       readmeArray.splice(2, 0, davidLine);
       written = true;
     }
   };
 
-  var checkTravis = function(input, ghurl) {
-    if (hasTrueInput(input, 'travis')) {
-      var travisLine = util.format('[![Build Status](https://travis-ci.org/%s.svg?branch=master)](https://travis-ci.org/%s)', ghurl, ghurl);
+  var checkTravis = function(userInput, url) {
+    if (hasTrueInput(userInput, 'travis')) {
+      var travisLine = util.format('[![Build Status](https://travis-ci.org/%s.svg?branch=master)](https://travis-ci.org/%s)', url, url);
       readmeArray.splice(2, 0, travisLine);
       written = true;
     }
   };
 
-  var checkCodeClimate = function(input, ghurl) {
-    if (hasTrueInput(input, 'codeclimate')) {
-      var ccline = util.format('[![Code Climate](https://codeclimate.com/github/%s/badges/gpa.svg)](https://codeclimate.com/github/%s)', ghurl, ghurl);
+  var checkCodeClimate = function(userInput, url) {
+    if (hasTrueInput(userInput, 'codeclimate')) {
+      var ccline = util.format('[![Code Climate](https://codeclimate.com/github/%s/badges/gpa.svg)](https://codeclimate.com/github/%s)', url, url);
       readmeArray.splice(2, 0, ccline);
       written = true;
     }
   };
-  var checkCoveralls = function(input, ghurl) {
-    if (hasTrueInput(input, 'coveralls')) {
-      var caline = util.format('[![Coverage Status](https://coveralls.io/repos/%s/badge.svg?branch=master)](https://coveralls.io/r/%s?branch=master)', ghurl, ghurl);
+  var checkCoveralls = function(userInput, url) {
+    if (hasTrueInput(userInput, 'coveralls')) {
+      var caline = util.format('[![Coverage Status](https://coveralls.io/repos/%s/badge.svg?branch=master)](https://coveralls.io/r/%s?branch=master)', url, url);
       readmeArray.splice(2, 0, caline);
       written = true;
     }
   };
 
-  var createReadme = function(settings) {
-
-    // Create a README based on package.json
-    var readmeArray = [];
-
+  var createReadme = function(config) {
     // First add title.
-    readmeArray.push(settings.package.name);
+    readmeArray.push(config.package.name);
 
     // Add a line under that.
     readmeArray.push('==');
@@ -71,13 +75,13 @@ module.exports = function(input, settings, cb) {
     readmeArray.push('');
 
     // Add description.
-    readmeArray.push(settings.package.description);
+    readmeArray.push(config.package.description);
 
     // Write to disc.
-    fs.writeFileSync(settings.dir + '/README.md', readmeArray.join('\n'));
-    return require('./bin/lib/findReadme')(settings.dir);
+    fs.writeFileSync(config.dir + '/README.md', readmeArray.join('\n'));
+    return require('./bin/lib/findReadme')(config.dir);
   };
-  var createTravisYml = function(settings) {
+  var createTravisYml = function(config) {
 
     // Create a README based on package.json
     var ymlArray = [];
@@ -85,28 +89,15 @@ module.exports = function(input, settings, cb) {
     // First add language.
     ymlArray.push('language: node_js');
 
-    // Add testable node versions
+    // Add testable node versions.
     ymlArray.push('node_js:');
-    ymlArray.push('  - "0.12"');
+    ymlArray.push('  - "4"');
     ymlArray.push('  - "0.10"');
-    ymlArray.push('  - "io.js"');
     ymlArray.push('sudo: false');
 
     // Write to disc.
-    fs.writeFileSync(settings.dir + '/.travis.yml', ymlArray.join('\n'));
+    fs.writeFileSync(config.dir + '/.travis.yml', ymlArray.join('\n'));
   };
-  // Find out the short form of github page.
-  if (!settings || !settings.package || !settings.package.repository || !settings.package.repository.url) {
-    return exitNoGithub();
-  }
-  var ghurl = settings.package.repository.url;
-  var ghreg = /[a-z]*:\/\/github.com\//;
-  if (!ghurl.match(ghreg)) {
-    return exitNoGithub();
-  }
-  else {
-    ghurl = ghurl.replace(ghreg, '').replace(/.git$/, '');
-  }
   if (input && input.readme && input.readme === 'y') {
     readmefile = createReadme(settings);
   }
@@ -115,7 +106,6 @@ module.exports = function(input, settings, cb) {
   }
 
   // Split readme into pieces.
-  var readmeArray = [];
   if (readmefile) {
     readmeArray = readmefile.split('\n');
   }
@@ -131,7 +121,7 @@ module.exports = function(input, settings, cb) {
   // Ok, let's present the result to the user, and ask for permission to write
   // it to a file.
   var endResult = readmeArray.join('\n');
-  prompt.message = "READMEIFY!".cyan;
+  prompt.message = 'READMEIFY!'.cyan;
   var stdin = settings.stdin || process.stdin;
   prompt.started = false;
   prompt.start({stdin: stdin});

@@ -1,4 +1,5 @@
-var fs = require('fs');
+/*eslint no-process-exit: 0 */
+'use strict';
 var dir = process.cwd();
 var beforeBool = require('./lib/beforeBool');
 var isVersionArg = require('./lib/version').arg;
@@ -71,7 +72,7 @@ if (process.argv[2] && isVersionArg(process.argv[2])) {
 }
 require('./lib/startPrompt')(schema, settings, function(err, code) {
   if (err) {
-    throw(err);
+    throw err;
   }
   process.exit(code);
 });
