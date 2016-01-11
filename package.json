@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/eiriksm/readmeify",
   "dependencies": {
+    "parse-github-repo-url": "^1.0.0",
     "prompt": "^0.2.14"
   },
   "devDependencies": {
