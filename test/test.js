@@ -1,10 +1,12 @@
-var should = require('should');
-var stream = require("mock-utf8-stream");
+/*eslint quotes: 0 */
+'use strict';
+require('should');
+var stream = require('mock-utf8-stream');
 var stdin = new stream.MockReadableStream();
 
 describe('Unit tests', function() {
   it('Should expose a beforeBool in lib', function() {
-    require('../bin/lib/beforeBool').should.be.a.Function;
+    require('../bin/lib/beforeBool').should.be.instanceOf(Function);
   });
 
   it('Should return some expected values from beforeBool', function() {
@@ -15,19 +17,19 @@ describe('Unit tests', function() {
   });
 
   it('Should expose a findPackage in lib', function() {
-    require('../bin/lib/findPackage').should.be.a.Function;
+    require('../bin/lib/findPackage').should.be.instanceOf(Function);
   });
 
   it('Should return some expected values from findPackage', function() {
     var f = require('../bin/lib/findPackage');
-    f(__dirname + '/..').should.be.a.Object;
+    f(require('path').join(__dirname, '/..')).should.be.instanceOf(Object);
     f('bogus/dir/name').should.eql(false);
   });
 
   it('Should expose version in lib', function() {
-    require('../bin/lib/version').should.be.a.Object;
-    require('../bin/lib/version').arg.should.be.a.Function;
-    require('../bin/lib/version').display.should.be.a.Function;
+    require('../bin/lib/version').should.be.instanceOf(Object);
+    require('../bin/lib/version').arg.should.be.instanceOf(Function);
+    require('../bin/lib/version').display.should.be.instanceOf(Function);
   });
 
   it('Should return some expected values from version', function() {
@@ -61,24 +63,15 @@ describe('Bootstrap everything', function() {
       c.should.equal(1);
     });
   });
-  it('Should do something more if we want to create README', function() {
-    s.package.repository.url = 'https://github.com/eiriksm/readmeify';
+  it('Should add all badges if we flag them to be there', function(done) {
     s.dir = '..';
     input.readme = 'y';
-    r(input, s, function(c) {
-    });
-  });
-  it('Should do even more if we want to create .travis.yml file', function() {
     input.travisyml = 'y';
-    r(input, s, function(c) {
-    });
-  });
-  it('Should add all badges if we flag them to be there', function(done) {
     input.david = 'y';
     input.coveralls = 'y';
     input.codeclimate = 'y';
     input.travis = 'y';
-    r2 = require('..');
+    var r2 = require('..');
     s.stdin = stdin;
     setTimeout(function() {
       s.stdin.write('y');
@@ -88,8 +81,20 @@ describe('Bootstrap everything', function() {
       done();
     });
   });
+  it('Should pass on a strange gh url format', function(done) {
+    s.package.repository.url = 'git+https://github.com/eiriksm/readmeify.git';
+    setTimeout(function() {
+      s.stdin.write('y');
+      s.stdin.write("\n");
+    });
+    require('..')(input, s, function(err, code, readme) {
+      code.should.equal(0);
+      readme[2].should.equal('[![Build Status](https://travis-ci.org/eiriksm/readmeify.svg?branch=master)](https://travis-ci.org/eiriksm/readmeify)');
+      done(err);
+    });
+  });
   it('Should pass on a couple of coverage based cases', function(done) {
-    r3 = require('..');
+    var r3 = require('..');
     setTimeout(function() {
       s.stdin.write('n');
       s.stdin.write("\n");
